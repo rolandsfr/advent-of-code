@@ -1,0 +1,23 @@
+{
+  "name": "aoc-2021",
+  "version": "1.0.0",
+  "description": "Advent of code 2021\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[C",
+  "scripts": {
+    "dev": "nodemon",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jest": "^27.4.3",
+    "nodemon": "^2.0.15",
+    "ts-jest": "^27.0.7"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.4",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.11",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
+  }
+}
