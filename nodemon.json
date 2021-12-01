@@ -1,5 +1,5 @@
 {
-  "watch": ["src"],
+  "watch": ["aoc-2021"],
   "ext": ".ts,.js",
   "ignore": [],
   "exec": "ts-node aoc-2021/01/index.ts"
