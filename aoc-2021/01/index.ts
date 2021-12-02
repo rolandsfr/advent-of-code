@@ -1,13 +1,6 @@
-import fs from "fs";
-import path from "path";
+import { loadInput } from "../utils/loadInput";
 
-const rawInput = fs.readFileSync(
-  path.resolve(__dirname, "./input.txt"),
-  "utf8"
-);
-
-// creating an array from the raw input data
-const input = rawInput.split("\r\n").map((level) => parseInt(level));
+const input = loadInput(__dirname).map((level) => parseInt(level));
 
 // PART 1 - comparing 2 individual levels (as number)
 const getTotalIncreases = (input: number[]): number => {
