@@ -1,4 +1,4 @@
-import { loadInput } from "../utils/loadInput";
+import { loadInput } from "../../utils/loadInput";
 
 type Input = string[];
 const input: Input = loadInput(__dirname);
