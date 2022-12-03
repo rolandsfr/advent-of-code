@@ -1,4 +1,4 @@
-import { loadInput } from "../utils/loadInput";
+import { loadInput } from "../../utils/loadInput";
 
 type Board = number[][];
 interface InputData {
@@ -172,14 +172,11 @@ const getLosingBoardResult = (numbers: number[], boards: Board[]): number => {
     };
 
     if (numbersDrawn.length === numbers.length) {
-      console.log(winningBoards);
       return {
         sum: 0,
         stoppedAt: lastNumberToDraw,
       };
     }
-
-    console.log(lastNumberToDraw);
 
     let currentMarked: number[] = [],
       localWinningBoards: Board[] = winningBoards,
@@ -225,8 +222,7 @@ const getLosingBoardResult = (numbers: number[], boards: Board[]): number => {
           currentMarked = markedInColumn;
           localWinningBoards.push(board);
           localLastDrawnNumber = numbersDrawn[numbersDrawn.length - 1];
-          console.table(board);
-          //
+          // console.table(board);
         }
       }
     });
@@ -239,7 +235,6 @@ const getLosingBoardResult = (numbers: number[], boards: Board[]): number => {
     );
   };
   const results = getLosingBoard();
-  console.log(results);
   return results.sum * results.stoppedAt;
 };
 
