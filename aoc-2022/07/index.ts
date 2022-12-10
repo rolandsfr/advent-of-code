@@ -18,10 +18,15 @@ interface FileType {
 interface AccumulatedDirs {
   dir: string;
   accumulated: number;
+  level: number;
 }
 
-const getIndexOfDir = (name: string, arr: AccumulatedDirs[]): number => {
-  return arr.findIndex((obj) => obj.dir == name);
+const getIndexOfDir = (
+  name: string,
+  level: number,
+  arr: AccumulatedDirs[]
+): number => {
+  return arr.findIndex((obj) => obj.dir == name && obj.level == level);
 };
 
 const addToParents = (
@@ -29,8 +34,8 @@ const addToParents = (
   accumulatedArr: AccumulatedDirs[],
   size: number
 ) => {
-  parents.slice(0, parents.length - 1).forEach((dir) => {
-    const index = getIndexOfDir(dir, accumulatedArr);
+  parents.slice(0, parents.length - 1).forEach((dir, lvl) => {
+    const index = getIndexOfDir(dir, lvl, accumulatedArr);
     accumulatedArr[index] = {
       ...accumulatedArr[index],
       accumulated: accumulatedArr[index].accumulated + size,
@@ -74,6 +79,7 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
         accumulatedSize.push({
           accumulated: 0,
           dir: el.value || "/",
+          level: previousParents.length - 1,
         });
       } else if (el.operation == ".." && previousParents.length > 1) {
         previousParents.pop();
@@ -97,6 +103,7 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
       if (doc.type == "file") {
         const targetDirIndex = getIndexOfDir(
           previousParents[previousParents.length - 1],
+          previousParents.length - 1,
           accumulatedSize
         );
 
@@ -106,15 +113,10 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
             accumulatedSize[targetDirIndex].accumulated + (doc.size as number),
         };
 
-        if (previousParents.length > 1) {
-          addToParents(previousParents, accumulatedSize, doc.size as number);
-        }
-
-        if (i < 50) {
-          console.log(accumulatedSize);
-        }
+        addToParents(previousParents, accumulatedSize, doc.size as number);
       }
     }
+    console.log(accumulatedSize);
   }
 
   const totalSize = accumulatedSize
@@ -125,4 +127,5 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
   return totalSize;
 };
 
-getSumOfSmallSizeDirectories(input);
+const res = getSumOfSmallSizeDirectories(input);
+console.log(res);
