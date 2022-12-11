@@ -19,6 +19,7 @@ interface AccumulatedDirs {
   dir: string;
   accumulated: number;
   level: number;
+  accumulationStopped: boolean;
 }
 
 const getIndexOfDir = (
@@ -26,7 +27,9 @@ const getIndexOfDir = (
   level: number,
   arr: AccumulatedDirs[]
 ): number => {
-  return arr.findIndex((obj) => obj.dir == name && obj.level == level);
+  return arr.findIndex(
+    (obj) => obj.dir == name && obj.level == level && !obj.accumulationStopped
+  );
 };
 
 const addToParents = (
@@ -43,8 +46,8 @@ const addToParents = (
   });
 };
 
-export const getSumOfSmallSizeDirectories = (input: string[]): number => {
-  const reshaped: (Command | FileType)[] = input.map((line) => {
+const getParsedInput = (input: string[]): (Command | FileType)[] => {
+  return input.map((line) => {
     // sort by type
     const values = line.split(" ");
     if (line[0] == "$") {
@@ -65,12 +68,15 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
       } as FileType;
     }
   });
+};
 
+const getFlattenedFS = (input: string[]): AccumulatedDirs[] => {
+  const parsedInput = getParsedInput(input);
   let accumulatedSize: AccumulatedDirs[] = [];
   let previousParents: string[] = [];
 
-  for (let i = 0; i < reshaped.length; i++) {
-    const el = reshaped[i];
+  for (let i = 0; i < parsedInput.length; i++) {
+    const el = parsedInput[i];
 
     if (el.type == "command") {
       if (el.operation !== ".." && el.command !== "ls") {
@@ -80,8 +86,18 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
           accumulated: 0,
           dir: el.value || "/",
           level: previousParents.length - 1,
+          accumulationStopped: false,
         });
       } else if (el.operation == ".." && previousParents.length > 1) {
+        const index = getIndexOfDir(
+          previousParents[previousParents.length - 1],
+          previousParents.length - 1,
+          accumulatedSize
+        );
+        accumulatedSize[index] = {
+          ...accumulatedSize[index],
+          accumulationStopped: true,
+        };
         previousParents.pop();
       }
 
@@ -89,16 +105,15 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
     }
 
     for (let j = i; ; j++) {
-      if (!reshaped[j]) {
-        i = reshaped.length;
+      const doc = parsedInput[j];
+      if (!doc) {
+        i = parsedInput.length;
         break;
       }
-      if (reshaped[j].type == "command") {
+      if (doc.type == "command") {
         i = j - 1;
         break;
       }
-
-      const doc = reshaped[j];
 
       if (doc.type == "file") {
         const targetDirIndex = getIndexOfDir(
@@ -116,16 +131,35 @@ export const getSumOfSmallSizeDirectories = (input: string[]): number => {
         addToParents(previousParents, accumulatedSize, doc.size as number);
       }
     }
-    console.log(accumulatedSize);
   }
 
-  const totalSize = accumulatedSize
+  return accumulatedSize;
+};
+
+export const getSumOfDirectoriesSmallerThan100k = (input: string[]): number => {
+  const fs = getFlattenedFS(input);
+
+  return fs
     .filter((dir) => dir.accumulated <= 100000)
     .map((dir) => dir.accumulated)
     .reduce((prev, curr) => prev + curr);
-
-  return totalSize;
 };
 
-const res = getSumOfSmallSizeDirectories(input);
+export const getSizeOfDirectoryToDelete = (input: string[]): number => {
+  const TOTAL_DISK_CAPACITY = 70000000;
+  const SPACE_NEEDED_FOR_UPDATE = 30000000;
+
+  const fs = getFlattenedFS(input);
+  const root = fs[0];
+  const freeSpace = TOTAL_DISK_CAPACITY - root.accumulated;
+
+  const potentialDirSizesToRemove = fs
+    .filter((dir) => freeSpace + dir.accumulated >= SPACE_NEEDED_FOR_UPDATE)
+    .map((dir) => dir.accumulated);
+
+  return Math.min(...potentialDirSizesToRemove);
+};
+
+const res = getSumOfDirectoriesSmallerThan100k(input);
 console.log(res);
+console.log(getSizeOfDirectoryToDelete(input));
